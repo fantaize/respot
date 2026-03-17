@@ -6,8 +6,6 @@
   </picture>
   <h3>An ncurses Spotify client written in Rust using librespot</h3>
 
-[![Crates.io](https://img.shields.io/crates/v/respot.svg)](https://crates.io/crates/respot)
-
   <img alt="respot search tab" src="doc/images/screenshot.png">
 </div>
 
