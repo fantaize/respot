@@ -11,7 +11,7 @@ use ioctl_rs::{TIOCGWINSZ, ioctl};
 use log::{debug, error};
 
 use crate::command::{Command, GotoMode};
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::config::Config;
 use crate::library::Library;
 use crate::queue::Queue;

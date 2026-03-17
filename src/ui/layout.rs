@@ -15,10 +15,10 @@ use unicode_width::UnicodeWidthStr;
 
 use crate::application::UserData;
 use crate::command::{self, Command, JumpMode};
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::config::{self, Config};
 use crate::events;
-use crate::ext_traits::CursiveExt;
+use crate::traits::CursiveExt;
 use crate::traits::{IntoBoxedViewExt, ViewExt};
 
 pub struct Layout {

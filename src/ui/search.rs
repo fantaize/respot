@@ -10,7 +10,7 @@ use std::cell::RefCell;
 use std::sync::{Arc, Mutex, RwLock};
 
 use crate::command::{Command, MoveMode};
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::events::EventManager;
 use crate::library::Library;
 use crate::model::album::Album;

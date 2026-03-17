@@ -16,7 +16,7 @@ use crate::queue::Queue;
 use crate::traits::{IntoBoxedViewExt, ListItem, ViewExt};
 use crate::ui::listview::ListView;
 
-#[derive(Clone, Debug, Deserialize, Serialize)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct Track {
     pub id: Option<String>,
     pub uri: String,

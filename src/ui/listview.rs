@@ -12,8 +12,8 @@ use cursive::{Cursive, Printer, Rect, Vec2, XY};
 use unicode_width::UnicodeWidthStr;
 
 use crate::command::{Command, GotoMode, InsertSource, JumpMode, MoveAmount, MoveMode, TargetMode};
-use crate::commands::CommandResult;
-use crate::ext_traits::CursiveExt;
+use crate::command::CommandResult;
+use crate::traits::CursiveExt;
 use crate::library::Library;
 use crate::model::album::Album;
 use crate::model::artist::Artist;
@@ -24,7 +24,7 @@ use crate::model::show::Show;
 use crate::model::track::Track;
 use crate::queue::Queue;
 #[cfg(feature = "share_clipboard")]
-use crate::sharing::{read_share, write_share};
+use crate::utils::{read_share, write_share};
 use crate::spotify::UriType;
 use crate::traits::{IntoBoxedViewExt, ListItem, ViewExt};
 use crate::ui::album::AlbumView;
@@ -221,6 +221,39 @@ impl<I: ListItem + Clone> ListView<I> {
         }
     }
 
+    fn handle_move(&mut self, mode: &MoveMode, amount: &MoveAmount) {
+        let last_idx = self.content.read().unwrap().len().saturating_sub(1);
+
+        match mode {
+            MoveMode::Up => {
+                if self.selected > 0 {
+                    match amount {
+                        MoveAmount::Extreme => self.move_focus_to(0),
+                        MoveAmount::Float(scale) => {
+                            let amount = (self.last_size.y as f32) * scale;
+                            self.move_focus(-(amount as i32))
+                        }
+                        MoveAmount::Integer(amount) => self.move_focus(-(*amount)),
+                    }
+                }
+            }
+            MoveMode::Down => {
+                if self.selected < last_idx {
+                    match amount {
+                        MoveAmount::Extreme => self.move_focus_to(last_idx),
+                        MoveAmount::Float(scale) => {
+                            let amount = (self.last_size.y as f32) * scale;
+                            self.move_focus(amount as i32)
+                        }
+                        MoveAmount::Integer(amount) => self.move_focus(*amount),
+                    }
+                }
+                self.try_paginate();
+            }
+            _ => {}
+        }
+    }
+
     /// Takes an incoming mouse event from Cursive and tries to act appropriately.
     ///
     /// Returns a MouseHandleResult which indicates whether the event has been handled by
@@ -230,13 +263,20 @@ impl<I: ListItem + Clone> ListView<I> {
             Event::Mouse {
                 event: MouseEvent::WheelUp,
                 ..
-            } => self.scroller.scroll_up(3),
+            } => {
+                return MouseHandleResult::Unhandled(Command::Move(
+                    MoveMode::Up,
+                    MoveAmount::Integer(1),
+                ));
+            }
             Event::Mouse {
                 event: MouseEvent::WheelDown,
                 ..
             } => {
-                self.scroller.scroll_down(3);
-                self.try_paginate();
+                return MouseHandleResult::Unhandled(Command::Move(
+                    MoveMode::Down,
+                    MoveAmount::Integer(1),
+                ));
             }
             Event::Mouse {
                 event: MouseEvent::Press(MouseButton::Left),
@@ -483,6 +523,10 @@ impl<I: ListItem + Clone> View for ListView<I> {
                     self.run_play_command();
                     EventResult::consumed()
                 }
+                Command::Move(ref mode, ref amount) => {
+                    self.handle_move(mode, amount);
+                    EventResult::consumed()
+                }
                 _ => EventResult::Ignored,
             },
         }
@@ -629,38 +673,8 @@ impl<I: ListItem + Clone> ViewExt for ListView<I> {
                 }
             },
             Command::Move(mode, amount) => {
-                let last_idx = self.content.read().unwrap().len().saturating_sub(1);
-
-                match mode {
-                    MoveMode::Up => {
-                        if self.selected > 0 {
-                            match amount {
-                                MoveAmount::Extreme => self.move_focus_to(0),
-                                MoveAmount::Float(scale) => {
-                                    let amount = (self.last_size.y as f32) * scale;
-                                    self.move_focus(-(amount as i32))
-                                }
-                                MoveAmount::Integer(amount) => self.move_focus(-(*amount)),
-                            }
-                        }
-                        return Ok(CommandResult::Consumed(None));
-                    }
-                    MoveMode::Down => {
-                        if self.selected < last_idx {
-                            match amount {
-                                MoveAmount::Extreme => self.move_focus_to(last_idx),
-                                MoveAmount::Float(scale) => {
-                                    let amount = (self.last_size.y as f32) * scale;
-                                    self.move_focus(amount as i32)
-                                }
-                                MoveAmount::Integer(amount) => self.move_focus(*amount),
-                            }
-                        }
-                        self.try_paginate();
-                        return Ok(CommandResult::Consumed(None));
-                    }
-                    _ => return Ok(CommandResult::Consumed(None)),
-                }
+                self.handle_move(mode, amount);
+                return Ok(CommandResult::Consumed(None));
             }
             Command::Open(mode) => {
                 let queue = self.queue.clone();
@@ -726,7 +740,7 @@ impl<I: ListItem + Clone> ViewExt for ListView<I> {
                     #[cfg(feature = "share_clipboard")]
                     InsertSource::Clipboard => read_share()
                         .ok()
-                        .and_then(crate::spotify_url::SpotifyUrl::from_url),
+                        .and_then(crate::spotify::SpotifyUrl::from_url),
                 };
 
                 let spotify = self.queue.get_spotify();

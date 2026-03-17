@@ -1,7 +1,7 @@
 use crate::events::{Event, EventManager};
 use crate::model::playable::Playable;
 use crate::queue::QueueEvent;
-use crate::spotify::PlayerEvent;
+use super::PlayerEvent;
 use librespot_core::SpotifyUri;
 use librespot_core::session::Session;
 use librespot_playback::mixer::Mixer;

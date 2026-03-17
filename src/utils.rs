@@ -1,6 +1,12 @@
-#![allow(dead_code)]
-
 use std::{fmt::Write, path::PathBuf};
+
+#[cfg(feature = "share_clipboard")]
+use arboard::Clipboard;
+#[cfg(feature = "share_clipboard")]
+use std::error::Error;
+
+#[cfg(all(feature = "share_clipboard", feature = "share_selection"))]
+use arboard::{GetExtLinux, LinuxClipboardKind, SetExtLinux};
 
 /// Returns a human readable String of a Duration
 ///
@@ -45,14 +51,17 @@ pub fn ms_to_hms(duration: u32) -> String {
 
 pub fn cache_path_for_url(url: String) -> std::path::PathBuf {
     let mut path = crate::config::cache_path("covers");
-    path.push(url.split('/').next_back().unwrap());
+    let filename = url.split('/').next_back().unwrap_or("unknown");
+    path.push(filename);
     path
 }
 
 pub fn download(url: String, path: std::path::PathBuf) -> Result<(), std::io::Error> {
     let mut resp = reqwest::blocking::get(url).map_err(std::io::Error::other)?;
 
-    std::fs::create_dir_all(path.parent().unwrap())?;
+    if let Some(parent) = path.parent() {
+        std::fs::create_dir_all(parent)?;
+    }
     let mut file = std::fs::File::create(path)?;
 
     std::io::copy(&mut resp, &mut file)?;
@@ -101,11 +110,11 @@ pub fn user_runtime_directory() -> Option<PathBuf> {
     let unix_runtime_directory = PathBuf::from("/tmp/");
 
     if let Some(xdg_runtime_directory) = xdg_runtime_directory() {
-        Some(xdg_runtime_directory.join("ncspot"))
+        Some(xdg_runtime_directory.join("respot"))
     } else if cfg!(target_os = "linux") && linux_runtime_directory.exists() {
-        Some(linux_runtime_directory.join("ncspot"))
+        Some(linux_runtime_directory.join("respot"))
     } else if unix_runtime_directory.exists() {
-        Some(unix_runtime_directory.join(format!("ncspot-{}", unsafe { libc::getuid() })))
+        Some(unix_runtime_directory.join(format!("respot-{}", unsafe { libc::getuid() })))
     } else {
         None
     }
@@ -114,4 +123,26 @@ pub fn user_runtime_directory() -> Option<PathBuf> {
 #[cfg(unix)]
 fn xdg_runtime_directory() -> Option<PathBuf> {
     std::env::var("XDG_RUNTIME_DIR").ok().map(Into::into)
+}
+
+#[cfg(feature = "share_clipboard")]
+pub fn read_share() -> Result<String, Box<dyn Error>> {
+    let mut ctx = Clipboard::new()?;
+
+    #[cfg(feature = "share_selection")]
+    return Ok(ctx.get().clipboard(LinuxClipboardKind::Primary).text()?);
+
+    #[cfg(not(feature = "share_selection"))]
+    return Ok(ctx.get_text()?);
+}
+
+#[cfg(feature = "share_clipboard")]
+pub fn write_share(url: String) -> Result<(), Box<dyn Error>> {
+    let mut ctx = Clipboard::new()?;
+
+    #[cfg(feature = "share_selection")]
+    return Ok(ctx.set().clipboard(LinuxClipboardKind::Primary).text(url)?);
+
+    #[cfg(not(feature = "share_selection"))]
+    return Ok(ctx.set_text(url)?);
 }

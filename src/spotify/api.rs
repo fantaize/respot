@@ -23,7 +23,7 @@ use crate::model::episode::Episode;
 use crate::model::playable::Playable;
 use crate::model::playlist::Playlist;
 use crate::model::track::Track;
-use crate::spotify_worker::WorkerCommand;
+use super::worker::WorkerCommand;
 use crate::ui::pagination::{ApiPage, ApiResult};
 
 /// Convenient wrapper around the rspotify web API functionality.
@@ -46,7 +46,7 @@ impl Default for WebApi {
             ..Default::default()
         };
         let api = AuthCodeSpotify::with_config(
-            rspotify::Credentials::new(crate::authentication::NCSPOT_CLIENT_ID, ""),
+            rspotify::Credentials::new(crate::authentication::RESPOT_CLIENT_ID, ""),
             rspotify::OAuth::default(),
             config,
         );

@@ -5,7 +5,7 @@ use cursive::view::ViewWrapper;
 use strum::IntoEnumIterator;
 
 use crate::command::Command;
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::config::LibraryTab;
 use crate::library::Library;
 use crate::queue::Queue;

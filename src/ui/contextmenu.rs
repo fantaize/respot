@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
 use cursive::Cursive;
+use cursive::event::{Event, EventResult, MouseEvent};
 use cursive::view::{Margins, ViewWrapper};
 use cursive::views::{Dialog, NamedView, ScrollView, SelectView};
 
-use crate::commands::CommandResult;
-use crate::ext_traits::SelectViewExt;
+use crate::command::{Command, CommandResult, MoveAmount, MoveMode};
+use crate::traits::SelectViewExt;
 use crate::library::Library;
 use crate::model::artist::Artist;
 use crate::model::playable::Playable;
@@ -13,12 +14,12 @@ use crate::model::playlist::Playlist;
 use crate::model::track::Track;
 use crate::queue::Queue;
 #[cfg(feature = "share_clipboard")]
-use crate::sharing::write_share;
-use crate::spotify::PlayerEvent;
+use crate::utils::write_share;
+use crate::spotify::{PlayerEvent, Spotify};
 use crate::traits::{ListItem, ViewExt};
 use crate::ui::layout::Layout;
+use crate::ui::lyrics::LyricsView;
 use crate::ui::modal::Modal;
-use crate::{command::Command, spotify::Spotify};
 use cursive::traits::{Finder, Nameable};
 
 pub struct ContextMenu {
@@ -45,6 +46,7 @@ enum ContextMenuAction {
     ShareUrl(String),
     AddToPlaylist(Box<Track>),
     ShowRecommendations(Box<Track>),
+    ShowLyrics,
     ToggleSavedStatus(Box<dyn ListItem>),
     Play(Box<dyn ListItem>),
     PlayNext(Box<dyn ListItem>),
@@ -263,8 +265,12 @@ impl ContextMenu {
             );
             content.add_item(
                 "Similar tracks",
-                ContextMenuAction::ShowRecommendations(Box::new(t)),
-            )
+                ContextMenuAction::ShowRecommendations(Box::new(t.clone())),
+            );
+            content.add_item(
+                "Lyrics",
+                ContextMenuAction::ShowLyrics,
+            );
         }
         // If the item is saveable, its save state will be set
         if let Some(savestatus) = item.is_saved(&library) {
@@ -316,6 +322,10 @@ impl ContextMenu {
                         if let Some(view) = item.to_owned().open_recommendations(queue, library) {
                             s.call_on_name("main", move |v: &mut Layout| v.push_view(view));
                         }
+                    }
+                    ContextMenuAction::ShowLyrics => {
+                        let view = Box::new(LyricsView::new(queue.clone()));
+                        s.call_on_name("main", move |v: &mut Layout| v.push_view(view));
                     }
                     ContextMenuAction::SelectArtist(artists) => {
                         let dialog = Self::select_artist_dialog(library, queue, artists.clone());
@@ -395,18 +405,43 @@ fn handle_move_command<T: Send + Sync + 'static>(
     }
 }
 
-impl ViewWrapper for AddToPlaylistMenu {
-    wrap_impl!(self.dialog: Modal<Dialog>);
+fn wheel_to_move(event: &Event) -> Option<Command> {
+    match event {
+        Event::Mouse {
+            event: MouseEvent::WheelUp,
+            ..
+        } => Some(Command::Move(MoveMode::Up, MoveAmount::Integer(1))),
+        Event::Mouse {
+            event: MouseEvent::WheelDown,
+            ..
+        } => Some(Command::Move(MoveMode::Down, MoveAmount::Integer(1))),
+        _ => None,
+    }
 }
 
-impl ViewWrapper for ContextMenu {
-    wrap_impl!(self.dialog: Modal<Dialog>);
+macro_rules! impl_scroll_wrapper {
+    ($ty:ty, $select_type:ty, $select_name:expr) => {
+        impl ViewWrapper for $ty {
+            wrap_impl!(self.dialog: Modal<Dialog>);
+
+            fn wrap_on_event(&mut self, event: Event) -> EventResult {
+                if let Some(cmd) = wheel_to_move(&event) {
+                    let result = self
+                        .dialog
+                        .call_on_name($select_name, |sv: &mut SelectView<$select_type>| {
+                            sv.handle_command(&cmd)
+                        });
+                    if matches!(result, Some(Ok(CommandResult::Consumed(_)))) {
+                        return EventResult::Consumed(None);
+                    }
+                }
+                <Modal<Dialog> as cursive::view::View>::on_event(&mut self.dialog, event)
+            }
+        }
+    };
 }
 
-impl ViewWrapper for SelectArtistMenu {
-    wrap_impl!(self.dialog: Modal<Dialog>);
-}
-
-impl ViewWrapper for SelectArtistActionMenu {
-    wrap_impl!(self.dialog: Modal<Dialog>);
-}
+impl_scroll_wrapper!(AddToPlaylistMenu, Playlist, "addplaylist_select");
+impl_scroll_wrapper!(ContextMenu, ContextMenuAction, "contextmenu_select");
+impl_scroll_wrapper!(SelectArtistMenu, Artist, "artist_select");
+impl_scroll_wrapper!(SelectArtistActionMenu, bool, "artist_action_select");

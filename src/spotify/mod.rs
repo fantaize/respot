@@ -1,9 +1,18 @@
+pub mod api;
+pub mod url;
+pub(crate) mod worker;
+
+pub use api::WebApi;
+pub use url::SpotifyUrl;
+pub(crate) use worker::WorkerCommand;
+
 use std::error::Error;
 use std::str::FromStr;
 use std::sync::{Arc, RwLock};
 use std::time::{Duration, SystemTime};
 use std::{env, fmt};
 
+use ::url::Url;
 use futures::channel::oneshot;
 use librespot_core::authentication::Credentials;
 use librespot_core::cache::Cache;
@@ -18,8 +27,8 @@ use librespot_playback::mixer::softmixer::SoftMixer;
 use librespot_playback::player::Player;
 use log::{debug, error, info, warn};
 use tokio::sync::mpsc;
-use url::Url;
 
+use self::worker::Worker;
 use crate::application::ASYNC_RUNTIME;
 use crate::authentication::SPOTIFY_CLIENT_ID;
 use crate::config;
@@ -27,8 +36,6 @@ use crate::events::{Event, EventManager};
 use crate::model::playable::Playable;
 #[cfg(feature = "mpris")]
 use crate::mpris::{MprisCommand, MprisManager};
-use crate::spotify_api::WebApi;
-use crate::spotify_worker::{Worker, WorkerCommand};
 use crate::traits::ListItem;
 
 /// One percent of the maximum supported [Player] volume, used when setting the volume to a certain
@@ -225,9 +232,9 @@ impl Spotify {
         info!("Initializing audio backend {backend_name}");
         if backend_name == "pulseaudio" {
             // TODO: Audit that the environment access only happens in single-threaded code.
-            unsafe { env::set_var("PULSE_PROP_application.name", "ncspot") };
+            unsafe { env::set_var("PULSE_PROP_application.name", "respot") };
             // TODO: Audit that the environment access only happens in single-threaded code.
-            unsafe { env::set_var("PULSE_PROP_stream.description", "ncurses Spotify client") };
+            unsafe { env::set_var("PULSE_PROP_stream.description", "respot") };
             // TODO: Audit that the environment access only happens in single-threaded code.
             unsafe { env::set_var("PULSE_PROP_media.role", "music") };
         }

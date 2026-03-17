@@ -22,7 +22,7 @@ use crate::model::show::Show;
 use crate::model::track::Track;
 use crate::queue::RepeatSetting;
 use crate::spotify::UriType;
-use crate::spotify_url::SpotifyUrl;
+use crate::spotify::SpotifyUrl;
 use crate::traits::ListItem;
 use crate::{
     events::EventManager,
@@ -51,7 +51,7 @@ impl MprisRoot {
 
     #[zbus(property)]
     fn identity(&self) -> &str {
-        "ncspot"
+        "respot"
     }
 
     #[zbus(property)]
@@ -151,7 +151,7 @@ impl MprisPlayer {
         hm.insert(
             "mpris:trackid".to_string(),
             Value::ObjectPath(ObjectPath::from_string_unchecked(format!(
-                "/org/ncspot/{}",
+                "/org/respot/{}",
                 playable
                     .filter(|t| t.id().is_some())
                     .map(|t| t.uri().replace(':', "/"))
@@ -569,7 +569,7 @@ impl MprisManager {
 /// <https://specifications.freedesktop.org/mpris-spec/2.2/#Bus-Name-Policy>
 pub fn instance_bus_name() -> String {
     format!(
-        "org.mpris.MediaPlayer2.ncspot.instance{}",
+        "org.mpris.MediaPlayer2.respot.instance{}",
         std::process::id()
     )
 }

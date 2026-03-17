@@ -4,7 +4,7 @@ use cursive::Cursive;
 use cursive::view::ViewWrapper;
 
 use crate::command::Command;
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::library::Library;
 use crate::model::category::Category;
 use crate::queue::Queue;

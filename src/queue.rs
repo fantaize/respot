@@ -2,9 +2,6 @@ use std::cmp::Ordering;
 use std::sync::{Arc, RwLock};
 
 use log::{debug, info};
-#[cfg(feature = "notify")]
-use notify_rust::Notification;
-
 use rand::prelude::*;
 use strum_macros::Display;
 
@@ -293,25 +290,7 @@ impl Queue {
 
             #[cfg(feature = "notify")]
             if self.cfg.values().notify.unwrap_or(false) {
-                std::thread::spawn({
-                    // use same parser as track_format, Playable::format
-                    let format = self
-                        .cfg
-                        .values()
-                        .notification_format
-                        .clone()
-                        .unwrap_or_default();
-                    let default_title = crate::config::NotificationFormat::default().title.unwrap();
-                    let title = format.title.unwrap_or_else(|| default_title.clone());
-
-                    let default_body = crate::config::NotificationFormat::default().body.unwrap();
-                    let body = format.body.unwrap_or_else(|| default_body.clone());
-
-                    let summary_txt = Playable::format(track, &title, &self.library);
-                    let body_txt = Playable::format(track, &body, &self.library);
-                    let cover_url = track.cover_url();
-                    move || send_notification(&summary_txt, &body_txt, cover_url)
-                });
+                crate::notification::notify_now_playing(&self.cfg, track, &self.library);
             }
 
             // Send a Seeked signal at start of new track
@@ -473,45 +452,6 @@ impl Queue {
     /// Get the spotify session.
     pub fn get_spotify(&self) -> Spotify {
         self.spotify.clone()
-    }
-}
-
-/// Send a notification using the desktops default notification method.
-///
-/// `summary_txt`: A short title for the notification.
-/// `body_txt`: The actual content of the notification.
-/// `cover_url`: A URL to an image to show in the notification.
-/// `notification_id`: Unique id for a notification, that can be used to operate
-/// on a previous notification (for example to close it).
-#[cfg(feature = "notify")]
-pub fn send_notification(summary_txt: &str, body_txt: &str, cover_url: Option<String>) {
-    let mut n = Notification::new();
-    n.appname("ncspot").summary(summary_txt).body(body_txt);
-
-    // album cover image
-    if let Some(u) = cover_url {
-        let path = crate::utils::cache_path_for_url(u.to_string());
-        if !path.exists()
-            && let Err(e) = crate::utils::download(u, path.clone())
-        {
-            log::error!("Failed to download cover: {e}");
-        }
-        n.icon(path.to_str().unwrap());
-    }
-
-    // XDG desktop entry hints
-    #[cfg(all(unix, not(target_os = "macos")))]
-    n.urgency(notify_rust::Urgency::Low)
-        .hint(notify_rust::Hint::Transient(true))
-        .hint(notify_rust::Hint::DesktopEntry("ncspot".into()));
-
-    match n.show() {
-        Ok(handle) => {
-            // only available for XDG
-            #[cfg(all(unix, not(target_os = "macos")))]
-            info!("Created notification: {}", handle.id());
-        }
-        Err(e) => log::error!("Failed to send notification cover: {e}"),
     }
 }
 

@@ -5,10 +5,9 @@ use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
 use cursive::view::ViewWrapper;
 use cursive::views::{ScrollView, TextView};
-use ncspot::CONFIGURATION_FILE_NAME;
+use respot::CONFIGURATION_FILE_NAME;
 
-use crate::command::{Command, MoveAmount, MoveMode};
-use crate::commands::CommandResult;
+use crate::command::{Command, CommandResult, MoveAmount, MoveMode};
 use crate::config::config_path;
 use crate::traits::ViewExt;
 use cursive::view::scroll::Scroller;

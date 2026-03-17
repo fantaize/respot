@@ -10,7 +10,7 @@ use crate::config::{self, Config};
 use crate::spotify::Spotify;
 
 pub const SPOTIFY_CLIENT_ID: &str = "65b708073fc0480ea92a077233ca87bd";
-pub const NCSPOT_CLIENT_ID: &str = "d420a117a32841c2b3474932e49fb54b";
+pub const RESPOT_CLIENT_ID: &str = "d420a117a32841c2b3474932e49fb54b";
 
 static OAUTH_SCOPES: &[&str] = &[
     "playlist-modify",
@@ -38,7 +38,7 @@ static OAUTH_SCOPES: &[&str] = &[
     "user-top-read",
 ];
 
-static NCSPOT_OAUTH_SCOPES: &[&str] = &[
+static RESPOT_OAUTH_SCOPES: &[&str] = &[
     "streaming",
     "user-read-email",
     "user-read-private",
@@ -137,9 +137,9 @@ pub fn get_rspotify_token() -> Result<rspotify::Token, String> {
         if let Some(ref refresh_token) = t.refresh_token {
             info!("Access token expired, attempting to refresh..");
             let client_builder = OAuthClientBuilder::new(
-                NCSPOT_CLIENT_ID,
+                RESPOT_CLIENT_ID,
                 &get_client_redirect_uri(),
-                NCSPOT_OAUTH_SCOPES.to_vec(),
+                RESPOT_OAUTH_SCOPES.to_vec(),
             );
             if let Ok(oauth_client) = client_builder.build() {
                 match oauth_client.refresh_token(refresh_token) {
@@ -167,9 +167,9 @@ pub fn create_rspotify_token() -> Result<rspotify::Token, String> {
     );
 
     let client_builder = OAuthClientBuilder::new(
-        NCSPOT_CLIENT_ID,
+        RESPOT_CLIENT_ID,
         &get_client_redirect_uri(),
-        NCSPOT_OAUTH_SCOPES.to_vec(),
+        RESPOT_OAUTH_SCOPES.to_vec(),
     );
     let oauth_client = client_builder.build().map_err(|e| e.to_string())?;
 

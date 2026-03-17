@@ -1,35 +1,35 @@
 # User Documentation
 
 ## Installation Instructions
-[![Packaging status](https://repology.org/badge/vertical-allrepos/ncspot.svg)](https://repology.org/project/ncspot/versions)
+[![Packaging status](https://repology.org/badge/vertical-allrepos/respot.svg)](https://repology.org/project/respot/versions)
 
 ### On macOS
-`ncspot` is available via [Homebrew](https://brew.sh/):
+`respot` is available via [Homebrew](https://brew.sh/):
 
 ```zsh
-brew install ncspot
+brew install respot
 ```
 
 ### On Windows
-`ncspot` is available via [Scoop](https://scoop.sh/):
+`respot` is available via [Scoop](https://scoop.sh/):
 
 ```powershell
-scoop install ncspot
+scoop install respot
 ```
 
 or via [winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
 
 ```powershell
-winget install hrkfdn.ncspot
+winget install fantaize.respot
 ```
 
 ### On Linux
 <div>
-<a href="https://flathub.org/apps/details/io.github.hrkfdn.ncspot"><img width="130" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.png"/></a>
-<a href="https://snapcraft.io/ncspot"><img alt="Download on Snapcraft" src="https://snapcraft.io//ncspot/badge.svg"/></a>
+<a href="https://flathub.org/apps/details/io.github.fantaize.respot"><img width="130" alt="Download on Flathub" src="https://flathub.org/assets/badges/flathub-badge-en.png"/></a>
+<a href="https://snapcraft.io/respot"><img alt="Download on Snapcraft" src="https://snapcraft.io//respot/badge.svg"/></a>
 </div>
 
-Your distribution may have packaged `ncspot` in its package repository.
+Your distribution may have packaged `respot` in its package repository.
 If so, simply install using your distribution's package manager - it
 is by far the easiest way. If not, you can build from source instead.
 See [Compiling](/doc/developers.md).
@@ -43,26 +43,26 @@ here are the runtime dependencies:
 - `ueberzug` or a compatible implementation (e.g. `ueberzugpp`) (if built with the `cover` feature)
 
 ### On BSD's
-Your distribution may have packaged `ncspot` in its package repository.
+Your distribution may have packaged `respot` in its package repository.
 If so, simply install using your distribution's package manager - it
 is by far the easiest way. If not, you can build from source instead.
 See [Compiling](/doc/developers.md).
 
-### From [crates.io](https://crates.io/crates/ncspot)
+### From [crates.io](https://crates.io/crates/respot)
 
-`ncspot` can be installed with `cargo`. The `cargo` documentation recommends against installing
+`respot` can be installed with `cargo`. The `cargo` documentation recommends against installing
 software with it. If another option is available from the ones above, it should be preferred. If no
-recent version is available for your OS, you can use the following command to install `ncspot` from
-[crates.io](https://crates.io/crates/ncspot).
+recent version is available for your OS, you can use the following command to install `respot` from
+[crates.io](https://crates.io/crates/respot).
 
 ```zsh
 # The --locked option is important and the compilation process might fail without it
-cargo install --locked ncspot
+cargo install --locked respot
 ```
 
 ## Key Bindings
 The keybindings listed below are configured by default. Additionally, if you
-built `ncspot` with MPRIS support, you may be able to use media keys to control
+built `respot` with MPRIS support, you may be able to use media keys to control
 playback depending on your desktop environment settings. Have a look at the
 [configuration section](#configuration) if you want to set custom bindings.
 
@@ -77,7 +77,7 @@ playback depending on your desktop environment settings. Have a look at the
 | <kbd>/</kbd>      | Open a Vim-like search bar (See [specific commands](#vim-like-search-bar)).   |
 | <kbd>:</kbd>      | Open a Vim-like command prompt (See [specific commands](#vim-like-commands)). |
 | <kbd>Escape</kbd> | Close Vim-like search bar or command prompt.                                  |
-| <kbd>Q</kbd>      | Quit `ncspot`.                                                                |
+| <kbd>Q</kbd>      | Quit `respot`.                                                                |
 | <kbd>g</kbd>      | Go to the top of the current view (Vim motion).                               |
 | <kbd>G</kbd>      | Go to the bottom of the current view (Vim motion).                            |
 
@@ -165,8 +165,8 @@ Note: \<FOO\> - mandatory arg; [BAR] - optional arg
 | Command                                                          | Action                                                                                                                                                                                                                                                          |
 |------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `help`                                                           | Show current key bindings.                                                                                                                                                                                                                                      |
-| `quit`<br/>Aliases: `q`, `x`                                     | Quit `ncspot`.                                                                                                                                                                                                                                                  |
-| `logout`                                                         | Remove any cached credentials from disk and quit `ncspot`.                                                                                                                                                                                                      |
+| `quit`<br/>Aliases: `q`, `x`                                     | Quit `respot`.                                                                                                                                                                                                                                                  |
+| `logout`                                                         | Remove any cached credentials from disk and quit `respot`.                                                                                                                                                                                                      |
 | `playpause`<br/>Aliases: `pause`, `toggleplay`, `toggleplayback` | Toggle playback.                                                                                                                                                                                                                                                |
 | `stop`                                                           | Stop playback.                                                                                                                                                                                                                                                  |
 | `seek` [`+`\|`-`]\<TIME\>                                        | Seek to the specified position, or seek relative to current position by prepending `+`/`-`.<br/>\* TIME is anything accepted by [parse_duration](https://docs.rs/parse_duration/latest/parse_duration/)<br/>\* Default unit is `ms` for backward compatibility. |
@@ -189,13 +189,13 @@ Note: \<FOO\> - mandatory arg; [BAR] - optional arg
 | `save [current]`                                                 | Save selected item, if `current` is passed the currently playing item will be saved                                                                                                                                                                             |
 
 ## Remote control (IPC)
-Apart from MPRIS, ncspot will also create a domain socket on UNIX platforms (Linux, macOS, *BSD).
-The socket will be created in the platform's runtime directory. Run `ncspot info` to show the
+Apart from MPRIS, respot will also create a domain socket on UNIX platforms (Linux, macOS, *BSD).
+The socket will be created in the platform's runtime directory. Run `respot info` to show the
 location of this directory on your platform. Applications or scripts can connect to this socket to
 send commands or be notified of the currently playing track, i.e. with `netcat`:
 
 ```
-% nc -U $NCSPOT_CACHE_DIRECTORY/ncspot.sock
+% nc -U $RESPOT_CACHE_DIRECTORY/respot.sock
 play
 {"mode":{"Playing":{"secs_since_epoch":1672249086,"nanos_since_epoch":547517730}},"playable":{"type":"Track","id":"2wcrQZ7ZJolYEfIaPP9yL4","uri":"spotify:track:2wcrQZ7ZJolYEfIaPP9yL4","title":"Hit Me Where It Hurts","track_number":4,"disc_number":1,"duration":184132,"artists":["Caroline Polachek"],"artist_ids":["4Ge8xMJNwt6EEXOzVXju9a"],"album":"Pang","album_id":"4ClyeVlAKJJViIyfVW0yQD","album_artists":["Caroline Polachek"],"cover_url":"https://i.scdn.co/image/ab67616d0000b2737d983e7bf67c2806218c2759","url":"https://open.spotify.com/track/2wcrQZ7ZJolYEfIaPP9yL4","added_at":"2022-12-19T22:41:05Z","list_index":0}}
 playpause
@@ -207,9 +207,9 @@ command or simply by playing the queue), the current status will be published as
 a JSON structure.
 
 Possible use cases for this could be:
-- Controlling a detached ncspot session (in `tmux` for example)
+- Controlling a detached respot session (in `tmux` for example)
 - Displaying the currently playing track in your favorite application/status bar (see below)
-- Setting up routines, i.e. to play specific songs/playlists when ncspot starts
+- Setting up routines, i.e. to play specific songs/playlists when respot starts
 
 ### Extracting info on currently playing song
 Using `netcat` and the domain socket, you can query the currently playing track
@@ -219,7 +219,7 @@ as they typically tend to keep the connection to the socket open. OpenBSD's
 specific number of packets have been received.
 
 ```
-% nc -W 1 -U $NCSPOT_CACHE_DIRECTORY/ncspot.sock
+% nc -W 1 -U $RESPOT_CACHE_DIRECTORY/respot.sock
 {"mode":{"Playing":{"secs_since_epoch":1675188934,"nanos_since_epoch":50913345}},"playable":{"type":"Track","id":"5Cp6a1h2VnuOtsh1Nqxfv6","uri":"spotify:track:5Cp6a1h2VnuOtsh1Nqxfv6","title":"New Track","track_number":1,"disc_number":1,"duration":498358,"artists":["Francis Bebey"],"artist_ids":["0mdmrbu5UZ32uRcRp2z6mr"],"album":"African Electronic Music (1975-1982)","album_id":"7w99Aae1tYSTSb1OiDnxYY","album_artists":["Francis Bebey"],"cover_url":"https://i.scdn.co/image/ab67616d0000b2736ab57cedf27177fae1eaed87","url":"https://open.spotify.com/track/5Cp6a1h2VnuOtsh1Nqxfv6","added_at":"2020-12-22T09:57:17Z","list_index":0}}
 ```
 
@@ -228,16 +228,16 @@ For example, you can get the currently playing artist and title in your
 terminal as follows:
 
 ```
-% nc -W 1 -U $NCSPOT_CACHE_DIRECTORY/ncspot.sock | jq '.playable.title'
+% nc -W 1 -U $RESPOT_CACHE_DIRECTORY/respot.sock | jq '.playable.title'
 "PUMPIN' JUMPIN'"
 
-% nc -W 1 -U $NCSPOT_CACHE_DIRECTORY/ncspot.sock | jq '.playable.artists[0]'
+% nc -W 1 -U $RESPOT_CACHE_DIRECTORY/respot.sock | jq '.playable.artists[0]'
 "Hideki Naganuma"
 ```
 
 ## Configuration
 Configuration is saved to the `config.toml` file in the platform's standard configuration directory.
-Run `ncspot info` to show the location of this directory on your platform. To reload the
+Run `respot info` to show the location of this directory on your platform. To reload the
 configuration during runtime use the `reload` command.
 
 Possible configuration values are:
@@ -275,7 +275,7 @@ Possible configuration values are:
 2. By default the statusbar will show a play icon when a track is playing and
    a pause icon when playback is stopped. If this setting is enabled, the behavior
    is reversed.
-3. Run `ncspot -h` for a list of devices.
+3. Run `respot -h` for a list of devices.
 4. If built with the `notify` feature.
 
 ### Custom Keybindings
@@ -320,19 +320,19 @@ To disable a default keybinding, set its command to `noop`:
 </details>
 
 ### Proxy
-`ncspot` will respect system proxy settings defined via the `http_proxy`
+`respot` will respect system proxy settings defined via the `http_proxy`
 environment variable.
 
 ```sh
 # In sh-like shells
-http_proxy="http://foo.bar:4444" ncspot
+http_proxy="http://foo.bar:4444" respot
 ```
 
 ### Theming
-[Theme generator](https://ncspot-theme-generator.vaa.red/) by [@vaarad](https://github.com/vaared).
+[Theme generator](https://respot-theme-generator.vaa.red/) by [@vaarad](https://github.com/vaared).
 
 The color palette can be modified in the configuration. For instance, to have
-`ncspot` match Spotify's official client, you can add the following entries to
+`respot` match Spotify's official client, you can add the following entries to
 the configuration file:
 
 ```toml
@@ -356,7 +356,7 @@ cmdline_bg = "black"
 search_match = "light red"
 ```
 
-More examples can be found in [this pull request](https://github.com/hrkfdn/ncspot/pull/40).
+More examples can be found in [this pull request](https://github.com/fantaize/respot/pull/40).
 
 ### Track Formatting
 It's possible to customize how tracks are shown in Queue/Library views and the
@@ -424,7 +424,7 @@ right = "%album"
 </details>
 
 ### Notification Formatting
-`ncspot` also supports customizing the way notifications are displayed
+`respot` also supports customizing the way notifications are displayed
 (which appear when compiled with the `notify` feature and `notify = true`).
 The title and body of the notification can be set, with `title` and `body`, or the default will be used.
 The formatting options are the same as those for [track formatting](#track-formatting) (`%artists`, `%title`, etc)
@@ -438,7 +438,7 @@ body = "%artists"
 ```
 
 ### Cover Drawing
-When compiled with the `cover` feature, `ncspot` can draw the album art of the
+When compiled with the `cover` feature, `respot` can draw the album art of the
 current track in a dedicated view (`:focus cover` or <kbd>F8</kbd> by default)
 using Überzug. The original project has been abandoned, therefore using a
 compatible implementation such as [Überzug++](https://github.com/jstkdng/ueberzugpp)
@@ -454,13 +454,13 @@ cover_max_scale = 2
 ```
 
 ## Authentication
-`ncspot` uses OAuth2 for authentication. When launched for the first time, a link will be generated
+`respot` uses OAuth2 for authentication. When launched for the first time, a link will be generated
 that can be opened in any browser. After logging in on the displayed page, you can start to use
-`ncspot`. The OAuth2 flow is the only supported one, as username/password authentication has been
+`respot`. The OAuth2 flow is the only supported one, as username/password authentication has been
 removed by Spotify.
 
 The credentials are stored in `librespot/credentials.json` in the user's cache directory. Run
-`ncspot info` to show the location of this directory.
+`respot info` to show the location of this directory.
 
 The `logout` command can be used to remove cached credentials. See
 [Vim-Like Commands](#vim-like-commands).

@@ -4,7 +4,7 @@ use cursive::Cursive;
 use cursive::view::ViewWrapper;
 
 use crate::command::Command;
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::library::Library;
 use crate::model::playable::Playable;
 use crate::model::playlist::Playlist;

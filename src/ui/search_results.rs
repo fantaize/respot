@@ -1,6 +1,6 @@
 use crate::application::ASYNC_RUNTIME;
 use crate::command::Command;
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::events::EventManager;
 use crate::library::Library;
 use crate::model::album::Album;
@@ -11,7 +11,7 @@ use crate::model::show::Show;
 use crate::model::track::Track;
 use crate::queue::Queue;
 use crate::spotify::{Spotify, UriType};
-use crate::spotify_url::SpotifyUrl;
+use crate::spotify::SpotifyUrl;
 use crate::traits::{ListItem, ViewExt};
 use crate::ui::listview::ListView;
 use crate::ui::pagination::Pagination;

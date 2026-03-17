@@ -11,7 +11,7 @@ use log::{error, info, trace};
 use signal_hook::{consts::SIGHUP, consts::SIGTERM, iterator::Signals};
 
 use crate::command::Command;
-use crate::commands::CommandManager;
+use crate::command::CommandManager;
 use crate::config::{Config, PlaybackState};
 use crate::events::{Event, EventManager};
 use crate::library::Library;
@@ -19,7 +19,7 @@ use crate::queue::Queue;
 use crate::spotify::{PlayerEvent, Spotify};
 use crate::ui::create_cursive;
 use crate::{authentication, ui, utils};
-use crate::{command, queue, spotify};
+use crate::{queue, spotify};
 
 #[cfg(feature = "mpris")]
 use crate::mpris::MprisManager;
@@ -43,7 +43,7 @@ pub fn setup_logging(filename: &Path) -> Result<(), fern::InitError> {
         // Add blanket level filter -
         .level(log::LevelFilter::Debug)
         // Set runtime log level for modules
-        .level_for("ncspot", log::LevelFilter::Trace)
+        .level_for("respot", log::LevelFilter::Trace)
         // Output to stdout, files, and other Dispatch configurations
         .chain(fern::log_file(filename)?)
         // Apply globally
@@ -59,7 +59,7 @@ pub struct UserDataInner {
 /// The global Tokio runtime for running asynchronous tasks.
 pub static ASYNC_RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
 
-/// The representation of an ncspot application.
+/// The representation of a respot application.
 pub struct Application {
     /// The music queue which controls playback order.
     queue: Arc<Queue>,
@@ -67,7 +67,7 @@ pub struct Application {
     spotify: Spotify,
     /// Internally shared
     event_manager: EventManager,
-    /// An IPC implementation using the D-Bus MPRIS protocol, used to control and inspect ncspot.
+    /// An IPC implementation using the D-Bus MPRIS protocol, used to control and inspect respot.
     #[cfg(unix)]
     ipc: Option<IpcSocket>,
     /// The object to render to the terminal.
@@ -75,7 +75,7 @@ pub struct Application {
 }
 
 impl Application {
-    /// Create a new ncspot application.
+    /// Create a new respot application.
     ///
     /// # Arguments
     ///
@@ -167,7 +167,7 @@ impl Application {
             Some(
                 ipc::IpcSocket::new(
                     ASYNC_RUNTIME.get().unwrap().handle(),
-                    runtime_directory.join("ncspot.sock"),
+                    runtime_directory.join("respot.sock"),
                     event_manager.clone(),
                 )
                 .map_err(|e| e.to_string())?,
@@ -282,7 +282,7 @@ impl Application {
                             data.cmd.handle(&mut self.cursive, Command::Quit);
                         };
                     }
-                    Event::IpcInput(input) => match command::parse(&input) {
+                    Event::IpcInput(input) => match crate::command::parse(&input) {
                         Ok(commands) => {
                             if let Some(data) = self.cursive.user_data::<UserData>().cloned() {
                                 for cmd in commands {

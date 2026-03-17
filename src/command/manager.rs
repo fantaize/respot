@@ -3,12 +3,12 @@ use std::sync::Arc;
 use std::time::Duration;
 
 use crate::application::UserData;
-use crate::command::{
+use super::{
     Command, GotoMode, JumpMode, MoveAmount, MoveMode, SeekDirection, ShiftMode, TargetMode, parse,
 };
 use crate::config::{Config, user_configuration_directory};
 use crate::events::EventManager;
-use crate::ext_traits::CursiveExt;
+use crate::traits::CursiveExt;
 use crate::library::Library;
 use crate::queue::{Queue, RepeatSetting};
 use crate::spotify::{Spotify, VOLUME_PERCENT};
@@ -18,6 +18,7 @@ use crate::ui::contextmenu::{
 };
 use crate::ui::help::HelpView;
 use crate::ui::layout::Layout;
+use crate::ui::lyrics::LyricsView;
 use crate::ui::modal::Modal;
 use crate::ui::search_results::SearchResultsView;
 use cursive::Cursive;
@@ -25,7 +26,7 @@ use cursive::event::{Event, Key};
 use cursive::traits::View;
 use cursive::views::Dialog;
 use log::{debug, error, info};
-use ncspot::CONFIGURATION_FILE_NAME;
+use respot::CONFIGURATION_FILE_NAME;
 use std::cell::RefCell;
 
 pub enum CommandResult {
@@ -207,6 +208,11 @@ impl CommandManager {
             }
             Command::Help => {
                 let view = Box::new(HelpView::new(self.bindings.borrow().clone()));
+                s.call_on_name("main", move |v: &mut Layout| v.push_view(view));
+                Ok(None)
+            }
+            Command::Lyrics => {
+                let view = Box::new(LyricsView::new(self.queue.clone()));
                 s.call_on_name("main", move |v: &mut Layout| v.push_view(view));
                 Ok(None)
             }
@@ -473,6 +479,7 @@ impl CommandManager {
         #[cfg(feature = "cover")]
         kb.insert("F8".into(), vec![Command::Focus("cover".into())]);
         kb.insert("?".into(), vec![Command::Help]);
+        kb.insert("Shift+l".into(), vec![Command::Lyrics]);
         kb.insert("Backspace".into(), vec![Command::Back]);
 
         kb.insert("o".into(), vec![Command::Open(TargetMode::Selected)]);
@@ -577,7 +584,7 @@ impl CommandManager {
         #[cfg(feature = "share_clipboard")]
         kb.insert(
             "Ctrl+v".into(),
-            vec![Command::Insert(crate::command::InsertSource::Clipboard)],
+            vec![Command::Insert(super::InsertSource::Clipboard)],
         );
 
         kb

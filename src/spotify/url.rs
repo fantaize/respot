@@ -1,6 +1,6 @@
 use std::fmt;
 
-use crate::spotify::UriType;
+use super::UriType;
 
 use url::{Host, Url};
 

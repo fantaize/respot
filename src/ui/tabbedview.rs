@@ -12,7 +12,7 @@ use unicode_width::UnicodeWidthStr;
 
 use crate::{
     command::{Command, MoveAmount, MoveMode},
-    commands::CommandResult,
+    command::CommandResult,
     traits::{BoxedViewExt, IntoBoxedViewExt, ViewExt},
 };
 

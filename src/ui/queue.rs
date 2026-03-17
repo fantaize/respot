@@ -7,7 +7,7 @@ use std::cmp::min;
 use std::sync::Arc;
 
 use crate::command::{Command, MoveMode, ShiftMode};
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::library::Library;
 use crate::model::playable::Playable;
 use crate::queue::Queue;

@@ -5,7 +5,7 @@ use cursive::view::{Margins, ViewWrapper};
 use cursive::views::Dialog;
 
 use crate::command::Command;
-use crate::commands::CommandResult;
+use crate::command::CommandResult;
 use crate::library::Library;
 use crate::model::playlist::Playlist;
 use crate::queue::Queue;
